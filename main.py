@@ -57,6 +57,14 @@ async def create_entry(new_entry: CreateEntryRequest, db: Session = Depends(get_
     db.add(entry)
     db.commit()
 
+@router.delete("/entry/{entry_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["Entries"])
+async def delete_entry(entry_id: int, db: Session = Depends(get_db)) -> None:
+    entry: Entry | None = db.get(Entry, entry_id)
+    if entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Entry with id {entry_id} not found")
+    db.delete(entry)
+    db.commit()
+
 app.include_router(router)
 
 mcp = FastMCP.from_fastapi(app=app)
